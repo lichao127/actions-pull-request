@@ -29,13 +29,48 @@ jobs:
     - name: Run Python Script
       run: python test_actions/task.py
 
+    - name: Check for changes
+      id: git_diff
+      run: |
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "::set-output name=changes_detected::true"
+        else
+          echo "::set-output name=changes_detected::false"
+        fi
+
+    - name: Create branch
+      if: steps.git_diff.outputs.changes_detected == 'true'
+      run: |
+        BRANCH_NAME="update-branch"
+        echo "Creating a new branch $BRANCH_NAME..."
+        curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -d "{\"ref\":\"refs/heads/$BRANCH_NAME\", \"sha\":\"${{ steps.get_sha.outputs.sha }}\"}" \
+          https://api.github.com/repos/${{ github.repository }}/git/refs
+        echo "::set-output name=branch::$BRANCH_NAME"
+
+    - name: Commit changes
+      if: steps.git_diff.outputs.changes_detected == 'true'
+      run: |
+        echo "Committing changes..."
+        FILES_CHANGED=$(git status --porcelain | awk '{print $2}')
+        for file in $FILES_CHANGED; do
+          CONTENT=$(base64 -w 0 $file)
+          FILENAME=$(basename $file)
+          BRANCH_NAME=${{ steps.create_branch.outputs.branch }}
+          SHA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/contents/$file?ref=$BRANCH_NAME | jq -r .sha)
+          if [ "$SHA" == "null" ]; then
+            SHA=""
+          fi
+          curl -s -X PUT -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -d "{\"message\":\"Update $FILENAME\", \"content\":\"$CONTENT\", \"branch\":\"$BRANCH_NAME\", \"sha\":\"$SHA\"}" \
+            https://api.github.com/repos/${{ github.repository }}/contents/$file
+        done
+
     - name: Create Pull Request
-      id: create_pull_request
-      uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # pin @v6.1.0
-      with:
-        branch: update-timestamp
-        commit-message: 'update timestamp'
-        title: '[Actions Workflow] update timestamp'
-        body: 'by GitHub Actions'
-        labels: 'auto-update'
-        base: main
+      if: steps.git_diff.outputs.changes_detected == 'true'
+      run: |
+        echo "Creating a pull request..."
+        BRANCH_NAME=${{ steps.create_branch.outputs.branch }}
+        curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -d "{\"title\":\"Update generated content\", \"head\":\"$BRANCH_NAME\", \"base\":\"main\", \"body\":\"Automated PR to update generated content\"}" \
+          https://api.github.com/repos/${{ github.repository }}/pulls

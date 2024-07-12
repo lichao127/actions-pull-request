@@ -35,7 +35,7 @@ jobs:
       run: python test_actions/task.py --output $FILE_TO_UPDATE
 
     - name: debug
-      run: git status --porcelain $FILE_TO_UPDATE
+      run: git status --porcelain ${FILE_TO_UPDATE}
     - name: Check for changes
       id: git_diff
       run: |

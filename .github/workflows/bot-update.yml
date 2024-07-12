@@ -36,12 +36,12 @@ jobs:
       run: python test_actions/task.py --output $FILE_TO_UPDATE
 
     - name: debug
-      run: echo "git status --porcelain ${FILE_TO_UPDATE}" && git status --porcelain ${FILE_TO_UPDATE}
+      run: git diff --quiet HEAD ${FILE_TO_UPDATE}
 
     - name: Check for changes
       id: git_diff
       run: |
-        if [ -n "$(git status --porcelain $FILE_TO_UPDATE)" ]; then
+        if [ -n "$(git diff --quiet HEAD ${FILE_TO_UPDATE})" ]; then
           echo "changes_detected=true" >> $GITHUB_ENV
         else
           echo "changes_detected=false" >> $GITHUB_ENV

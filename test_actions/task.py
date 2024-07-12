@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 
 
-def main(filename):
+def main(filename='timestamp'):
     now = datetime.now()
     formatted_date_time = now.strftime("%Y-%m-%d-%H-%M")
     print(formatted_date_time)
@@ -22,4 +22,4 @@ if __name__ == "__main__":
                         help="name of output file")
     args = parser.parse_args()
 
-    main(output=args.output)
+    main(filename=args.output)

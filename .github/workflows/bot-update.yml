@@ -10,6 +10,11 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  FILE_TO_UPDATE: 'timestamp'
+  BRANCH_NAME: 'update-branch'
+  BASE: 'main'
+
 jobs:
   check_and_update:
     runs-on: ubuntu-latest
@@ -27,12 +32,12 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
     - name: Run Python Script
-      run: python test_actions/task.py
+      run: python test_actions/task.py --output $FILE_TO_UPDATE
 
     - name: Check for changes
       id: git_diff
       run: |
-        if [ -n "$(git status --porcelain)" ]; then
+        if [ -n "$(git status --porcelain $FILE_TO_UPDATE)" ]; then
           echo "changes_detected=true" >> $GITHUB_ENV
         else
           echo "changes_detected=false" >> $GITHUB_ENV
@@ -49,7 +54,6 @@ jobs:
       if: env.changes_detected == 'true'
       id: create_branch
       run: |
-        BRANCH_NAME="update-branch"
         echo "Creating a new branch $BRANCH_NAME..."
         curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -d "{\"ref\":\"refs/heads/$BRANCH_NAME\", \"sha\":\"${{ env.sha }}\"}" \
@@ -64,7 +68,6 @@ jobs:
         for file in $FILES_CHANGED; do
           CONTENT=$(base64 -w 0 $file)
           FILENAME=$(basename $file)
-          BRANCH_NAME=${{ env.branch }}
           SHA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/${{ github.repository }}/contents/$file?ref=$BRANCH_NAME | jq -r .sha)
           if [ "$SHA" == "null" ]; then
             SHA=""
@@ -78,7 +81,6 @@ jobs:
       if: env.changes_detected == 'true'
       run: |
         echo "Creating a pull request..."
-        BRANCH_NAME=${{ env.branch }}
         curl -s -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           -d "{\"title\":\"Update generated content\", \"head\":\"$BRANCH_NAME\", \"base\":\"main\", \"body\":\"Automated PR to update generated content\"}" \
           https://api.github.com/repos/${{ github.repository }}/pulls

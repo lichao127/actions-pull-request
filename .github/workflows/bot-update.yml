@@ -35,6 +35,9 @@ jobs:
     - name: Run Python Script
       run: python task.py --output $FILE_TO_UPDATE
 
+    - name: debug
+      run: git diff HEAD $FILE_TO_UPDATE)
+
     - name: Check for changes
       id: git_diff
       run: |
@@ -43,7 +46,7 @@ jobs:
           echo "changes_detected=false" >> $GITHUB_ENV
         else
           $(git diff --quiet HEAD $FILE_TO_UPDATE) > /dev/null 2>&1
-          if [ 1 -ne 0 ]; then
+          if [ $? -ne 0 ]; then
             echo 'changes detected'
             echo "changes_detected=true" >> $GITHUB_ENV
           else

@@ -46,7 +46,7 @@ jobs:
           echo "changes_detected=false" >> $GITHUB_ENV
         else
           set +e
-          asdfd > /dev/null 2>&1
+          git diff --quiet HEAD $FILE_TO_UPDATE
           set -e
           if [ $? -ne 0 ]; then
             echo 'changes detected'

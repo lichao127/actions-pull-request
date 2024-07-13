@@ -36,7 +36,7 @@ jobs:
       run: python task.py --output $FILE_TO_UPDATE
 
     - name: debug
-      run: git diff HEAD $FILE_TO_UPDATE)
+      run: git diff HEAD $FILE_TO_UPDATE
 
     - name: Check for changes
       id: git_diff

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-        <root xmlns:ns="uri">
-            <leaf id="1" active="on" />
-            <leaf id="2" active="on" />
-            <leaf id="3" active="off" />
-        </root>

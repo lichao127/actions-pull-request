@@ -33,7 +33,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
     - name: Run Python Script
-      run: python test_actions/task.py --output $FILE_TO_UPDATE
+      run: python task.py --output $FILE_TO_UPDATE
 
     - name: debug
       run: pwd && ls && git status

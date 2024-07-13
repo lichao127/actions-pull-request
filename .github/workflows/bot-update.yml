@@ -39,13 +39,9 @@ jobs:
       id: git_diff
       run: |
         git diff --quiet HEAD "$FILE_TO_UPDATE" > /dev/null 2>&1
-        if [ $? -ne 0 ]; then
-          echo 'changes detected'
-          echo "changes_detected=true" >> $GITHUB_ENV
-        else
-          echo 'changes not detected'
-          echo "changes_detected=false" >> $GITHUB_ENV
-        fi
+
+        echo "changes_detected=false" >> $GITHUB_ENV
+
 
     - name: Get current branch commit SHA
       id: get_sha

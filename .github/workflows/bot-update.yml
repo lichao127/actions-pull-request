@@ -51,6 +51,7 @@ jobs:
             echo "changes_detected=false" >> $GITHUB_ENV
           fi
         fi
+        exit 0
 
     - name: Get current branch commit SHA
       id: get_sha

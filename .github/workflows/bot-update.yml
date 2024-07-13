@@ -41,12 +41,14 @@ jobs:
         if [ ! -f ${FILE_TO_UPDATE} ]; then
           echo 'no such file'
           echo "changes_detected=false" >> $GITHUB_ENV
-        elif [ "$(git diff --quiet HEAD ${FILE_TO_UPDATE})" -ne 0 ]; then
-          echo 'changes detected'
-          echo "changes_detected=true" >> $GITHUB_ENV
         else
-          echo 'changes not detected'
-          echo "changes_detected=false" >> $GITHUB_ENV
+          git diff --quiet HEAD $file
+          if [ $? -ne 0 ]; then
+            echo 'changes detected'
+            echo "changes_detected=true" >> $GITHUB_ENV
+          else
+            echo 'changes not detected'
+            echo "changes_detected=false" >> $GITHUB_ENV
         fi
 
     - name: Get current branch commit SHA

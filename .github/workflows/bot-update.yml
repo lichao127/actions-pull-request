@@ -47,7 +47,6 @@ jobs:
         else
           set +e
           git diff --quiet HEAD $FILE_TO_UPDATE
-          set -e
           if [ $? -ne 0 ]; then
             echo 'changes detected'
             echo "changes_detected=true" >> $GITHUB_ENV
@@ -55,6 +54,7 @@ jobs:
             echo 'changes not detected'
             echo "changes_detected=false" >> $GITHUB_ENV
           fi
+          set -e
         fi
 
     - name: Get current branch commit SHA

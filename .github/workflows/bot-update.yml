@@ -45,9 +45,9 @@ jobs:
           echo 'no such file'
           echo "changes_detected=false" >> $GITHUB_ENV
         else
-          set -e
-          asdfd > /dev/null 2>&1
           set +e
+          asdfd > /dev/null 2>&1
+          set -e
           if [ $? -ne 0 ]; then
             echo 'changes detected'
             echo "changes_detected=true" >> $GITHUB_ENV

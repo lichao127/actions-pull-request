@@ -49,6 +49,7 @@ jobs:
           else
             echo 'changes not detected'
             echo "changes_detected=false" >> $GITHUB_ENV
+          fi
         fi
 
     - name: Get current branch commit SHA

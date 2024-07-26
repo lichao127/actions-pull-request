@@ -7,8 +7,7 @@ permissions:
 on:
   push:
     branches: [ "main" ]
-  schedule:
-    - cron: '15 18 * * *' 
+
 
 env:
   FILE_TO_UPDATE: 'timestamp'
